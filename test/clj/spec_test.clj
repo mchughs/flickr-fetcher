@@ -3,11 +3,11 @@
             [clojure.test :refer :all]
             [backend.route-spec :as sut]))
 
-(deftest v1-fetch-request-spec-test
-  (testing "The spec for v1-fetch-request should work on proper inputs."
+(deftest v1-download-request-spec-test
+  (testing "The spec for v1-download-request should work on proper inputs."
     (are [expected input] (= expected
                              (not= :clojure.spec.alpha/invalid
-                                   (s/conform ::sut/v1-fetch-request input)))
+                                   (s/conform ::sut/v1-download-request input)))
       true  {}
       true  {:page-size 1}
       true  {:width 1 :height 1}

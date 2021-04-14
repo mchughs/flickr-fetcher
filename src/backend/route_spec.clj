@@ -6,7 +6,7 @@
 (s/def ::width pos-int?)
 (s/def ::height pos-int?)
 
-(s/def ::v1-fetch-request
+(s/def ::v1-download-request
        (s/and
          (s/keys :opt-un [::page-size
                           ::width

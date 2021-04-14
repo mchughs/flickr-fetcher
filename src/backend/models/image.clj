@@ -7,6 +7,11 @@
            java.io.ByteArrayOutputStream
            java.io.ByteArrayInputStream))
 
+(defn extract-dimensions [file]
+  (let [^BufferedImage img (ImageIO/read file)]
+    {:width (.getWidth img)
+     :height (.getHeight img)}))
+
 (defn- scale [^java.io.BufferedInputStream in
               {:keys [width height]}]
   (let [^BufferedImage original (ImageIO/read in)

@@ -1,21 +1,23 @@
 (ns backend.server
   "Technical Challenge
 
-  Flickr fetcher Implement and push to a GitHub repository an HTTP service that has one endpoint which downloads,
-  resizes and stores images from the Flickr feed:
-  (https://www.flickr.com/services/feeds/docs/photos_public/).
-  Your solution should meet the following requirements:
-  - Able to specify the number of images to return, if not specified then return all the images from the Flickr feed request
-  - Able to specify a resize width and height
-  - It is sufficient to save the resized images on the local disk
+    Flickr fetcher Implement and push to a GitHub repository an HTTP service that has one endpoint which downloads,
+    resizes and stores images from the Flickr feed:
+    (https://www.flickr.com/services/feeds/docs/photos_public/).
+    Your solution should meet the following requirements:
+    - Able to specify the number of images to return, if not specified then return all the images from the Flickr feed request
+    - Able to specify a resize width and height
+    - It is sufficient to save the resized images on the local disk
 
-  You are very welcome to use libraries and 3rd party services, as long as they are not all-in-one solutions to these requirements.Please include a README explaining how to use your solution along with any explanation you wish to provide.
+    You are very welcome to use libraries and 3rd party services, as long as they are not all-in-one solutions to these requirements.Please include a README explaining how to use your solution along with any explanation you wish to provide.
 
-  Any questions at all, let me know!"
+    Any questions at all, let me know!"
   (:require [backend.routes.swagger            :as routes.swagger]
-            [backend.route-spec                :as spec]
-            [backend.handlers.fetch            :as fetch]
             [backend.handlers.display          :as display]
+            [backend.handlers.download         :as download]
+            [backend.handlers.drop             :as drop]
+            [backend.handlers.fetch            :as fetch]
+            [backend.route-spec                :as spec]
             [muuntaja.core                     :as m]
             [reitit.coercion.spec]
             [reitit.ring                       :as ring]
@@ -53,21 +55,26 @@
                                  :body "ok\n"})}]
        routes.swagger/swag
        ["/api/v1"
-        ["/fetch" {:name :v1/fetch
-                   :summary "Fetch photos from Flickr"
-                   :description "Photos will download directly into the directory `resources/downloads/` found at the project root."
-                   :coercion reitit.coercion.spec/coercion
-                   :parameters {:query ::spec/v1-fetch-request}
-                   :get fetch/handler}]
+        ["/download" {:name :v1/download
+                      :summary "Download photos from Flickr"
+                      :description "Photos will download directly into the directory `resources/downloads/` found at the project root."
+                      :coercion reitit.coercion.spec/coercion
+                      :parameters {:query ::spec/v1-download-request}
+                      :post download/handler}]
         ["/display/:id" {:name :v1/display
                          :summary "Display a photo saved on disk"
                          :description "Images displayed here are automatically scaled up to the size of the window.
                                        If you want to see an accurate size of the image, run the request in a separate tab."
                          :swagger {:produces ["image/jpg"]}
                          :parameters {:path {:id uuid?}}
-                         :get display/handler}]]]
-        ;; TODO Add an endpoint for droping the downloads folder contents.
-        ;; TODO Add an endpoint for getting the names of the files in the downloads folder.
+                         :get display/handler}]
+        ["/drop" {:name :v1/drop
+                  :summary "Delete all downloaded photos"
+                  :description "Photos in the `resources/download/` directory will be deleted."
+                  :delete drop/handler}]
+        ["/fetch" {:name :v1/fetch
+                   :summary "Fetch all the names of the saved photos."
+                   :get fetch/handler}]]]
       router-config)
     (ring/routes
       (swagger-ui/create-swagger-ui-handler {:path "/"})
