@@ -1,9 +1,11 @@
 (ns backend.handlers.drop
   (:require [clojure.java.io :as io]))
 
+;; Would normally be moved into a configuration
+(def dir (io/file (io/resource "downloads")))
+
 (defn handler [_request]
-  (let [dir (io/file (io/resource "downloads"))
-        files (->> dir
+  (let [files (->> dir
                    file-seq
                    (remove #(.isDirectory %)))]
     (if (empty? files)
